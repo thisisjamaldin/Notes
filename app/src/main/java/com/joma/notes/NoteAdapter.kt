@@ -9,6 +9,7 @@ import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.resource.bitmap.RoundedCorners
 import com.bumptech.glide.request.RequestOptions
+import com.joma.notes.databinding.ItemNoteBinding
 
 class NoteAdapter(val iOnItem: IOnItem): RecyclerView.Adapter<NoteAdapter.ViewHolder>() {
 
@@ -28,36 +29,30 @@ class NoteAdapter(val iOnItem: IOnItem): RecyclerView.Adapter<NoteAdapter.ViewHo
         notifyItemRemoved(pos)
     }
 
-    inner class ViewHolder(itemView: View): RecyclerView.ViewHolder(itemView){
-
-        var imageView = itemView.findViewById<ImageView>(R.id.item_image)
-        var textView = itemView.findViewById<TextView>(R.id.item_title)
-        var delete = itemView.findViewById<TextView>(R.id.item_delete)
-        var edit = itemView.findViewById<TextView>(R.id.item_edit)
-        var share = itemView.findViewById<TextView>(R.id.item_share)
+    inner class ViewHolder(private val binding: ItemNoteBinding): RecyclerView.ViewHolder(binding.root){
 
         fun bind(pos: Int) {
             itemView.context.getString(R.string.delete)
-            textView.text = list[pos].title
+            binding.title.text = list[pos].title
             Glide.with(itemView)
                 .load(list[pos].imageUri)
                 .apply(RequestOptions.bitmapTransform(RoundedCorners(10)))
-                .into(imageView)
-            delete.setOnClickListener {
+                .into(binding.image)
+            binding.delete.setOnClickListener {
                 iOnItem.delete(pos)
             }
-            share.setOnClickListener {
+            binding.share.setOnClickListener {
                 iOnItem.share(pos)
             }
-            edit.setOnClickListener {
+            binding.edit.setOnClickListener {
                 iOnItem.edit(pos)
             }
         }
     }
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context).inflate(R.layout.item_note, parent, false)
-        return ViewHolder(view)
+        val binding = ItemNoteBinding.inflate(LayoutInflater.from(parent.context), parent, false)
+        return ViewHolder(binding)
     }
 
     override fun getItemCount(): Int {

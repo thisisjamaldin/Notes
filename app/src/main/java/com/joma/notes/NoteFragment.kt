@@ -7,31 +7,34 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
+import com.joma.notes.databinding.FragmentNoteBinding
 
 class NoteFragment : Fragment(), NoteAdapter.IOnItem {
 
-    lateinit var recyclerView: RecyclerView
+    private var _binding: FragmentNoteBinding? = null
+    private val binding get() = _binding!!
     lateinit var adapter: NoteAdapter
 
     override fun onCreateView(
         inflater: LayoutInflater, container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        return inflater.inflate(R.layout.fragment_note, container, false)
+        _binding = FragmentNoteBinding.inflate(inflater, container, false)
+        return binding.root
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        recyclerView = view.findViewById(R.id.recycler)
         adapter = NoteAdapter(this)
-        recyclerView.adapter = adapter
-
-        val list: MutableList<NoteModel> = ArrayList()
-        list.add(NoteModel("title", "sdfg", "sfg", ""))
-        list.add(NoteModel("title2", "sdfg", "sfg", ""))
-        list.add(NoteModel("title3", "sdfg", "sfg", ""))
-        list.add(NoteModel("title4", "sdfg", "sfg", ""))
-        adapter.setList(list)
+        binding.recycler.adapter = adapter
+        binding.add.setOnClickListener {
+            requireActivity()
+                .supportFragmentManager
+                .beginTransaction()
+                .replace(R.id.main_container, AddFragment())
+                .commit()
+        }
+        adapter.setList((requireActivity() as MainActivity).list)
     }
 
     override fun delete(pos: Int) {
@@ -50,7 +53,11 @@ class NoteFragment : Fragment(), NoteAdapter.IOnItem {
         bundle.putSerializable("edit", adapter.getItem(pos))
         val fragment = AddFragment()
         fragment.arguments = bundle
-        requireActivity().supportFragmentManager.beginTransaction().replace(R.id.main_container, fragment).commit()
+        requireActivity()
+            .supportFragmentManager
+            .beginTransaction()
+            .replace(R.id.main_container, fragment)
+            .commit()
     }
 
     override fun share(pos: Int) {
