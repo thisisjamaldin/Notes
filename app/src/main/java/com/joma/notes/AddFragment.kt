@@ -8,8 +8,13 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
+import androidx.navigation.NavController
+import androidx.navigation.fragment.NavHostFragment
+import androidx.navigation.fragment.findNavController
 import com.bumptech.glide.Glide
 import com.joma.notes.databinding.FragmentAddBinding
+import java.text.SimpleDateFormat
+import java.util.*
 
 class AddFragment : Fragment() {
 
@@ -29,32 +34,31 @@ class AddFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        val sdf = SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault())
+        binding.date.setText(sdf.format(Date()))
+
         if (arguments != null) {
             binding.save.text = "edit"
             val mode = arguments?.getSerializable("edit") as NoteModel
             binding.title.setText(mode.title)
 
         }
-            binding.save.setOnClickListener {
-                val noteModel = NoteModel(
-                    binding.title.text.toString(),
-                    binding.desc.text.toString(),
-                    binding.date.text.toString(),
-                    imageUri
-                )
-                (requireActivity() as MainActivity).list.add(noteModel)
-                requireActivity().supportFragmentManager.beginTransaction()
-                    .replace(R.id.main_container, NoteFragment()).commit()
-            }
-
+        binding.save.setOnClickListener {
+            val noteModel = NoteModel(
+                binding.title.text.toString(),
+                binding.desc.text.toString(),
+                binding.date.text.toString(),
+                imageUri
+            )
+            (requireActivity() as MainActivity).list.add(noteModel)
+            findNavController().navigateUp()
+        }
 
         binding.image.setOnClickListener {
             val intent = Intent(Intent.ACTION_PICK)
             intent.type = "image/*"
             startActivityForResult(intent, 1)
         }
-
-
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
